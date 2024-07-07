@@ -11,14 +11,26 @@ mongoose.connect('mongodb+srv://admin:admin@data3apps.owzveqi.mongodb.net/elysiu
 
 const ClienteSchema = new mongoose.Schema({
     nombre: String,
-    telefono: String
+    telefono: String,
+    fechaRegistro: { type: Date, default: Date.now },
+    horaRegistro: { type: String } 
 });
 
 const Cliente = mongoose.model('Cliente', ClienteSchema);
 
 app.post('/clientes', (req, res) => {
-    const cliente = new Cliente(req.body);
-    cliente.save().then(() => res.status(201).send(cliente));
+    const { nombre, telefono } = req.body;
+    const horaRegistro = new Date().toLocaleTimeString(); 
+
+    const cliente = new Cliente({
+        nombre,
+        telefono,
+        horaRegistro
+    });
+
+    cliente.save()
+        .then(() => res.status(201).send(cliente))
+        .catch(err => res.status(500).send(err));
 });
 
 app.get('/clientes', (req, res) => {
