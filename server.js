@@ -1,28 +1,28 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const cors = require('cors');
+const path = require('path');
 
 const app = express();
-app.use(express.json());
-app.use(cors());  // Habilita CORS
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-const clienteSchema = new mongoose.Schema({
+mongoose.connect('mongodb+srv://admin:admin@data3apps.owzveqi.mongodb.net/elysium?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const ClienteSchema = new mongoose.Schema({
     nombre: String,
     telefono: String
 });
 
-const Cliente = mongoose.model('Cliente', clienteSchema);
+const Cliente = mongoose.model('Cliente', ClienteSchema);
 
-mongoose.connect('mongodb+srv://admin:admin@data3apps.owzveqi.mongodb.net/Data3apps?retryWrites=true&w=majority', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+app.post('/clientes', (req, res) => {
+    const cliente = new Cliente(req.body);
+    cliente.save().then(() => res.status(201).send(cliente));
 });
 
-app.get('/clientes', async (req, res) => {
-    const clientes = await Cliente.find();
-    res.json(clientes);
+app.get('/clientes', (req, res) => {
+    Cliente.find().then(clientes => res.send(clientes));
 });
 
-app.listen(3001, () => {
-    console.log('App de Clientes escuchando en el puerto 3001');
-});
+app.listen(3001, () => console.log('App1 listening on port 3001'));
